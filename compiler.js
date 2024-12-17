@@ -144,38 +144,38 @@ if (process.argv.length == 2) {
 
     }
     compile()
-    if (hasArgument("watch")) 
+//     if (hasArgument("watch") == true) 
+//         console.log("watch?")
+        
+//         // Directory to watch
         
         
-        // Directory to watch
-        
-        
-        // Function to execute when a change is detected
+//         // Function to execute when a change is detected
         
 
 
 
-// Function to execute when a change is detected
-var excludedDirectories = ['.git','.vscode','.idea','dist','random',"node_modules","build"]
-function onChange(eventType, filename) {
-    const fullPath = path.join("./", filename); 
-     const isExcluded = excludedDirectories.some(dir => fullPath.includes(path.join("./", dir)));
-    if (!isExcluded) {
-        compile()
-    }
+// // Function to execute when a change is detected
+// var excludedDirectories = ['.git','.vscode','.idea','dist','random',"node_modules","build"]
+// function onChange(eventType, filename) {
+//     const fullPath = path.join("./", filename); 
+//      const isExcluded = excludedDirectories.some(dir => fullPath.includes(path.join("./", dir)));
+//     if (!isExcluded) {
+//         compile()
+//     }
     
-}
+// }
 
-let debounceTimeout;
-const debounceInterval = 500; // Interval in milliseconds
+// let debounceTimeout;
+// const debounceInterval = 500; // Interval in milliseconds
 
-// Watch the directory for changes
-fs.watch("./", (eventType, filename) => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-        onChange(eventType, filename);
-    }, debounceInterval);
-});
+// // Watch the directory for changes
+// fs.watch("./", (eventType, filename) => {
+//     clearTimeout(debounceTimeout);
+//     debounceTimeout = setTimeout(() => {
+//         onChange(eventType, filename);
+//     }, debounceInterval);
+// });
 
 
         
