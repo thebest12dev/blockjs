@@ -32,7 +32,7 @@ module.exports = {
         ],
     },
     optimization: {
-        minimize: true, // Enable minimization
+        minimize: false, // Enable minimization
         minimizer: [new TerserPlugin()], // Use TerserPlugin for minification
     },
 };

@@ -432,7 +432,7 @@ void main() {
                ;
            }
            gl.useProgram(shaderProgram);
-           
+           let velocity = 0
         //    const vertexShaderS = gl.createShader(gl.VERTEX_SHADER);
         //    gl.shaderSource(vertexShaderS, skyboxVsource);
         //    gl.compileShader(vertexShaderS);
@@ -557,73 +557,82 @@ void main() {
            }
            
            
-           function updateCamera(self: Renderer) {
+        //    function updateCamera(self: Renderer) {
             
-               const cameraSpeed = 0.25;
-               if (keys["t"] || keys["T"]) {
-                   paused = true
-                   if (document.getElementById('titleScreen').getAttribute("_2") == "") {
-                       document.getElementById('chatInput').removeAttribute("_2")
-                       document.getElementById('chatInput').focus()
-                   }
+        //        const cameraSpeed = 0.25;
+        //        if (keys["t"] || keys["T"]) {
+        //            paused = true
+        //            if (document.getElementById('titleScreen').getAttribute("_2") == "") {
+        //                document.getElementById('chatInput').removeAttribute("_2")
+        //                document.getElementById('chatInput').focus()
+        //            }
                   
-               }
-               // if (keys['w']) {
-               //     vec3.scaleAndAdd(Renderer.getRenderer().camera.position, Renderer.getRenderer().camera.position, Renderer.getRenderer().camera.front, this.cameraSpeed);
-               // }
+        //        }
+        //        // if (keys['w']) {
+        //        //     vec3.scaleAndAdd(Renderer.getRenderer().camera.position, Renderer.getRenderer().camera.position, Renderer.getRenderer().camera.front, this.cameraSpeed);
+        //        // }
             
-               if (!paused) {
+        //        if (!paused) {
                 
-                   if (keys['w']) {
-                       // Calculate the forward direction with y fixed to 0
-                       let forward = vec3.clone(self.camera.front);
-                       forward[1] = 0; // Zero out the y component
-                       vec3.normalize(forward, forward); // Normalize to maintain unit direction
+        //            if (keys['w']) {
+        //             let floor = raycast(
+        //                 vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1], Renderer.getRenderer().camera.position[2]),
+        //                 vec3.fromValues(0,0,-1),
+        //                 2
+        //             );
+        //             if (!floor.intersectedBlock) {
+        //                   // Calculate the forward direction with y fixed to 0
+        //                let forward = vec3.clone(self.camera.front);
+        //                forward[1] = 0; // Zero out the y component
+        //                vec3.normalize(forward, forward); // Normalize to maintain unit direction
                    
-                       // Move the Renderer.getRenderer().camera position forward along the x and z axes
-                       vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, cameraSpeed);
-                   }
+        //                // Move the Renderer.getRenderer().camera position forward along the x and z axes
+        //                vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, cameraSpeed);
+        //             }
+                     
+        //            }
                    
-                   if (keys['s']) {
-                       // Calculate the forward direction with y fixed to 0
-                       let forward = vec3.clone(self.camera.front);
-                       forward[1] = 0; // Zero out the y component
-                       vec3.normalize(forward, forward); // Normalize to maintain unit direction
+        //            if (keys['s']) {
+        //                // Calculate the forward direction with y fixed to 0
+        //                let forward = vec3.clone(self.camera.front);
+        //                forward[1] = 0; // Zero out the y component
+        //                vec3.normalize(forward, forward); // Normalize to maintain unit direction
                    
-                       // Move the Renderer.getRenderer().camera position forward along the x and z axes
-                       vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, -cameraSpeed);
-                   }
-                   if (keys['a']) {
-                       const right = vec3.create();
-                       vec3.cross(right,self.camera.front, self.camera.up);
-                       vec3.normalize(right, right);
-                       vec3.scaleAndAdd(self.camera.position, self.camera.position, right, -cameraSpeed);
-                   }
-                   if (keys['d']) {
-                       const right = vec3.create();
-                       vec3.cross(right, self.camera.front, self.camera.up);
-                       vec3.normalize(right, right);
-                       vec3.scaleAndAdd(self.camera.position, self.camera.position, right, cameraSpeed);
-                   }
-                   if (keys['Shift']) {
-                    self.camera.position[1] -= cameraSpeed
-                }
-                if (keys[' ']) {
-                    self.camera.position[1] += cameraSpeed
-                }
-               }
+        //                // Move the Renderer.getRenderer().camera position forward along the x and z axes
+        //                vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, -cameraSpeed);
+        //            }
+        //            if (keys['a']) {
+        //                const right = vec3.create();
+        //                vec3.cross(right,self.camera.front, self.camera.up);
+        //                vec3.normalize(right, right);
+        //                vec3.scaleAndAdd(self.camera.position, self.camera.position, right, -cameraSpeed);
+        //            }
+        //            if (keys['d']) {
+        //                const right = vec3.create();
+        //                vec3.cross(right, self.camera.front, self.camera.up);
+        //                vec3.normalize(right, right);
+        //                vec3.scaleAndAdd(self.camera.position, self.camera.position, right, cameraSpeed);
+        //            }
+        //            if (keys['Shift']) {
+        //             self.camera.position[1] -= cameraSpeed
+        //         }
+        //         if (keys[' ']) {
+        //             self.camera.position[1] += 1
+        //             velocity = 0
+        //         }
+        //        }
             
             
-               const viewMatrix = mat4.create();
-               mat4.lookAt(viewMatrix, Renderer.getRenderer().camera.position, [
-                   Renderer.getRenderer().camera.position[0] + Renderer.getRenderer().camera.front[0],
-                   Renderer.getRenderer().camera.position[1] + Renderer.getRenderer().camera.front[1],
-                   Renderer.getRenderer().camera.position[2] + Renderer.getRenderer().camera.front[2]
-               ], Renderer.getRenderer().camera.up);
+        //        const viewMatrix = mat4.create();
+        //        mat4.lookAt(viewMatrix, Renderer.getRenderer().camera.position, [
+        //            Renderer.getRenderer().camera.position[0] + Renderer.getRenderer().camera.front[0],
+        //            Renderer.getRenderer().camera.position[1] + Renderer.getRenderer().camera.front[1],
+        //            Renderer.getRenderer().camera.position[2] + Renderer.getRenderer().camera.front[2]
+        //        ], Renderer.getRenderer().camera.up);
    
-               const viewMatrixLocation = gl.getUniformLocation(shaderProgram, 'viewMatrix');
-               gl.uniformMatrix4fv(viewMatrixLocation, gl.FALSE, viewMatrix);
-           }
+        //        const viewMatrixLocation = gl.getUniformLocation(shaderProgram, 'viewMatrix');
+        //        gl.uniformMatrix4fv(viewMatrixLocation, gl.FALSE, viewMatrix);
+        //    }
    
            let collision = true;
            function getDayNightColor(time: number, dayDuration: number) {
@@ -762,8 +771,8 @@ function cullObjects(objects: any,planes:any) {
         const culled = [];
         for (let j = 0; j < objects.length; j++) {
             const block = objects[j];
-
-            if (!isAABBInsideFrustum(block.getAABB(), planes)) {
+            
+            if (!isAABBInsideFrustum(block.getAABB(), planes) && !(Math.round(Renderer.getRenderer().camera.position[0]) == block.position[0])&& !(Math.round(Renderer.getRenderer().camera.position[2]) == block.position[2])) {
                 
                 continue;
             }
@@ -825,6 +834,84 @@ let animationFrameId;
 // Store mesh data for instanced rendering
 const meshes: any = {};
 
+function updateCamera(self: Renderer) {
+            
+    const cameraSpeed = 0.25;
+    if (keys["t"] || keys["T"]) {
+        paused = true
+        if (document.getElementById('titleScreen').getAttribute("_2") == "") {
+            document.getElementById('chatInput').removeAttribute("_2")
+            document.getElementById('chatInput').focus()
+        }
+       
+    }
+    // if (keys['w']) {
+    //     vec3.scaleAndAdd(Renderer.getRenderer().camera.position, Renderer.getRenderer().camera.position, Renderer.getRenderer().camera.front, this.cameraSpeed);
+    // }
+ 
+    if (!paused) {
+     
+        if (keys['w']) {
+         let floor = raycast(
+             vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1], Renderer.getRenderer().camera.position[2]),
+             vec3.fromValues(0,0,-1),
+             2
+         );
+         if (!floor.intersectedBlock) {
+               // Calculate the forward direction with y fixed to 0
+            let forward = vec3.clone(self.camera.front);
+            forward[1] = 0; // Zero out the y component
+            vec3.normalize(forward, forward); // Normalize to maintain unit direction
+        
+            // Move the Renderer.getRenderer().camera position forward along the x and z axes
+            vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, cameraSpeed);
+         }
+          
+        }
+        
+        if (keys['s']) {
+            // Calculate the forward direction with y fixed to 0
+            let forward = vec3.clone(self.camera.front);
+            forward[1] = 0; // Zero out the y component
+            vec3.normalize(forward, forward); // Normalize to maintain unit direction
+        
+            // Move the Renderer.getRenderer().camera position forward along the x and z axes
+            vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, -cameraSpeed);
+        }
+        if (keys['a']) {
+            const right = vec3.create();
+            vec3.cross(right,self.camera.front, self.camera.up);
+            vec3.normalize(right, right);
+            vec3.scaleAndAdd(self.camera.position, self.camera.position, right, -cameraSpeed);
+        }
+        if (keys['d']) {
+            const right = vec3.create();
+            vec3.cross(right, self.camera.front, self.camera.up);
+            vec3.normalize(right, right);
+            vec3.scaleAndAdd(self.camera.position, self.camera.position, right, cameraSpeed);
+        }
+        if (keys['Shift']) {
+         self.camera.position[1] -= cameraSpeed
+     }
+     if (keys[' ']) {
+         self.camera.position[1] += 1
+         velocity = 0
+     }
+    }
+ 
+ 
+    const viewMatrix = mat4.create();
+    mat4.lookAt(viewMatrix, Renderer.getRenderer().camera.position, [
+        Renderer.getRenderer().camera.position[0] + Renderer.getRenderer().camera.front[0],
+        Renderer.getRenderer().camera.position[1] + Renderer.getRenderer().camera.front[1],
+        Renderer.getRenderer().camera.position[2] + Renderer.getRenderer().camera.front[2]
+    ], Renderer.getRenderer().camera.up);
+
+    const viewMatrixLocation = gl.getUniformLocation(shaderProgram, 'viewMatrix');
+    gl.uniformMatrix4fv(viewMatrixLocation, gl.FALSE, viewMatrix);
+}
+
+
 // Function to add a new mesh for instanced rendering
 function addInstancedMesh(name: string, vertices: any | Float32Array<ArrayBuffer>, indices: any | Uint16Array<ArrayBuffer>, textureCoord: boolean) {
     const vertexBuffer = gl.createBuffer();
@@ -885,56 +972,99 @@ function raycast(origin: any, direction: any, maxDistance: number): { intersecte
 
     return { intersectedBlock: closestBlock, normal: closestNormal };
 }
-
 function intersectRayAABB(origin: any, direction: any, aabb: { min: number[]; max: number[]; }): { point: any, normal: any } | null {
-    let tmin = 0.0; // Start at 0 to consider intersection from the start
-    let tmax = 10; // Maximum distance for intersection
+    let tmin = 0.0;
+    let tmax = 10;  // Or your max distance
     let normal: any = null;
 
     for (let i = 0; i < 3; i++) {
         if (Math.abs(direction[i]) < 1e-6) {
             if (origin[i] < aabb.min[i] || origin[i] > aabb.max[i]) {
-                return null; // Ray is parallel to the slab and outside
+                return null;
             }
         } else {
             const invD = 1.0 / direction[i];
             let t1 = (aabb.min[i] - origin[i]) * invD;
             let t2 = (aabb.max[i] - origin[i]) * invD;
 
-            if (t1 > t2) [t1, t2] = [t2, t1]; // Swap if necessary
+            if (t1 > t2) [t1, t2] = [t2, t1];
 
             if (t1 > tmin) {
                 tmin = t1;
-                normal = vec3.create();
-                normal[i] = direction[i] < 0 ? 1 : -1;
+                normal = vec3.create(); // Initialize here
+                normal[i] = direction[i] < 0 ? 1 : -1; // Correct normal based on direction
+                for (let j = 0; j < 3; j++) {
+                    if (i !== j) {
+                        normal[j] = 0; // Ensure other components are zero
+                    }
+                }
             }
             tmax = Math.min(tmax, t2);
             if (tmin > tmax) {
-                return null; // No intersection
+                return null;
             }
         }
     }
 
-    if (tmax < 0) {
-        return null; // No intersection, behind the ray
-    }
 
     const intersectionPoint = vec3.create();
     vec3.scaleAndAdd(intersectionPoint, origin, direction, tmin);
 
-    if (normal) {
-        vec3.normalize(normal, normal);
-    }
+    // No need to normalize if already handled correctly above
+    // if (normal) { vec3.normalize(normal, normal); }
 
     return { point: intersectionPoint, normal: normal };
 }
+// function intersectRayAABB(origin: any, direction: any, aabb: { min: number[]; max: number[]; }): { point: any, normal: any } | null {
+//     let tmin = 0.0; // Start at 0 to consider intersection from the start
+//     let tmax = 10; // Maximum distance for intersection
+//     let normal: any = null;
+
+//     for (let i = 0; i < 3; i++) {
+//         if (Math.abs(direction[i]) < 1e-6) {
+//             if (origin[i] < aabb.min[i] || origin[i] > aabb.max[i]) {
+//                 return null; // Ray is parallel to the slab and outside
+//             }
+//         } else {
+//             const invD = 1.0 / direction[i];
+//             let t1 = (aabb.min[i] - origin[i]) * invD;
+//             let t2 = (aabb.max[i] - origin[i]) * invD;
+
+//             if (t1 > t2) [t1, t2] = [t2, t1]; // Swap if necessary
+
+//             if (t1 > tmin) {
+//                 tmin = t1;
+//                 normal = vec3.create();
+//                 normal[i] = direction[i] < 0 ? 1 : -1;
+//             }
+//             tmax = Math.min(tmax, t2);
+//             if (tmin > tmax) {
+//                 return null; // No intersection
+//             }
+//         }
+//     }
+
+//     if (tmax < 0) {
+//         return null; // No intersection, behind the ray
+//     }
+
+//     const intersectionPoint = vec3.create();
+//     vec3.scaleAndAdd(intersectionPoint, origin, direction, tmin);
+
+//     if (normal) {
+//         vec3.normalize(normal, normal);
+//     }
+
+//     return { point: intersectionPoint, normal: normal };
+// }
 
 function processObjects(culledObjects: any[], intersectedBlock: Block) {
     return culledObjects
 }
 
 
-
+let intersectedBlock: Block;
+let normal;
 canvas.addEventListener("mousedown", (e) => {
     const rayOrigin = vec3.fromValues(
         Renderer.getRenderer().camera.position[0],
@@ -946,9 +1076,9 @@ canvas.addEventListener("mousedown", (e) => {
         Renderer.getRenderer().camera.front[1],
         Renderer.getRenderer().camera.front[2]
     );
-
-    const { intersectedBlock, normal } = raycast(rayOrigin, rayDirection, 10);
-
+    let obj = raycast(rayOrigin, rayDirection, 10)
+     intersectedBlock  = obj.intersectedBlock;
+     normal = obj.normal
     if (e.button === 0 && intersectedBlock) {
         (window as any).objects.splice((window as any).objects.indexOf(intersectedBlock), 1);
     }
@@ -1060,7 +1190,39 @@ canvas.addEventListener("mousedown", (e) => {
         //     animationFrameId = requestAnimationFrame(render);
         // }
 const textureBuffer = gl.createBuffer()
-let lastPosition: any;
+let lastPosition: any = [0,0,0];
+collision = false
+function getFloorBlock(blocks: Block[], cpos: number[]): Block | null {
+    let floorBlock: Block | null = null;
+    let closestY = Infinity; // Initialize with a very large Y value
+
+    for (let index = 0; index < blocks.length; index++) {
+        const block = blocks[index];
+
+        // 1. Check if the block is below the player
+        if (block.position[1] < cpos[1]) {
+
+            // 2. Check if the block is within the player's XZ bounds (adjust the tolerance as needed)
+            const tolerance = 10; // Example: Allow a half-block tolerance
+            if (Math.abs(block.position[0] - cpos[0]) <= tolerance &&
+                Math.abs(block.position[2]- cpos[2]) <= tolerance) {
+                    
+                // 3. Find the block with the highest Y value (closest to the player)
+                
+                if (block.position[1] > closestY) {
+                    closestY = block.position[0];
+                    floorBlock = block;
+                    console.log("why")
+                }
+            }
+        }
+    }
+
+    return floorBlock;
+}
+let lastFloorHeight = Infinity; // Keep track of the last floor height
+let lastYawPitch: number[] = [];
+let lastBlock: Block = null
 function render() {
     
     
@@ -1083,23 +1245,36 @@ function render() {
 
 
     updateCamera(Renderer.getRenderer());
-    if (!collision) {
-        Renderer.getRenderer().camera.position[1] -= 9.81 / 60;
-    }
-    if (lastPosition !== Renderer.getRenderer().camera) {
+   
+        
+    
+//     if (!(lastPosition[0] == Renderer.getRenderer().camera.position[0] &&lastPosition[1] == Renderer.getRenderer().camera.position[1]
+//    && lastPosition[2] == Renderer.getRenderer().camera.position[2])) {
+        
         (window as any).loadedObjects = []
         for (let j = 0; j < (window as any).objects.length; j++) {
             const block = (window as any).objects[j];
+            
             if (calculateDistanceSquared(Renderer.getRenderer().camera.position[0],Renderer.getRenderer().camera.position[1],Renderer.getRenderer().camera.position[2],block.position[0],block.position[1],block.position[2]) > 1024) {
                 continue;
             }
             (window as any).loadedObjects.push(block)
         }
-    }
-    const rayOrigin = vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1], Renderer.getRenderer().camera.position[2]);
-    const rayDirection = vec3.fromValues(Renderer.getRenderer().camera.front[0], Renderer.getRenderer().camera.front[1], Renderer.getRenderer().camera.front[2]);
-    
-    const {intersectedBlock} = raycast(rayOrigin, rayDirection, 10); // Cast ray up to 10 units
+        lastPosition[0] = Renderer.getRenderer().camera.position[0]
+        lastPosition[1] = Renderer.getRenderer().camera.position[1];
+        lastPosition[2] = Renderer.getRenderer().camera.position[2];
+    //} 
+   // if (!(lastYawPitch[0] == Renderer.getRenderer().camera.yaw && lastYawPitch[1] == Renderer.getRenderer().camera.pitch)) {
+        const rayOrigin = vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1], Renderer.getRenderer().camera.position[2]);
+        const rayDirection = vec3.fromValues(Renderer.getRenderer().camera.front[0], Renderer.getRenderer().camera.front[1], Renderer.getRenderer().camera.front[2]);
+        
+        let obj = raycast(rayOrigin, rayDirection, 10)
+        intersectedBlock  = obj.intersectedBlock;
+        normal = obj.normal
+        lastYawPitch[0] = Renderer.getRenderer().camera.yaw
+        lastYawPitch[1] = Renderer.getRenderer().camera.pitch;
+   // }
+   
 
     mat4.lookAt(viewMatrix,Renderer.getRenderer().camera.position, [
         Renderer.getRenderer().camera.position[0] + Renderer.getRenderer().camera.front[0],
@@ -1121,6 +1296,49 @@ function render() {
     const finalObjects = processObjects(culledObjects,intersectedBlock);
     
     (window as any).finalObjects = finalObjects
+    
+
+
+// Get camera position (simplify access)
+
+
+ const cameraPos = Renderer.getRenderer().camera.position;
+// const yaw = Renderer.getRenderer().camera.yaw * Math.PI / 180; // Assuming yaw is in radians
+// const pitch = Renderer.getRenderer().camera.pitch * Math.PI / 180; // Assuming pitch is in radians
+
+// // Create direction vector based on yaw and pitch
+// const direction = vec3.create();
+// direction[0] = Math.cos(pitch) * Math.sin(yaw);
+// direction[1] = -Math.sin(pitch);
+// direction[2] = Math.cos(pitch) * Math.cos(yaw);
+
+let floor = raycast(
+    vec3.fromValues(cameraPos[0], cameraPos[1], cameraPos[2]),
+    vec3.fromValues(0,-1,0),
+    2
+);
+
+if (floor.intersectedBlock == null) {
+    // Apply gravity
+    Renderer.getRenderer().camera.position[1] -= ((9.81 + velocity) / 60) ;
+    if (velocity < 9.81 * 4) {
+        velocity += 1;
+    }
+
+    // False positive check: If we've fallen significantly below the last known floor,
+    // something's wrong.  Reset to the last known floor height.
+    // if (cameraPos[1] < lastFloorHeight - 0.5) { // 0.5 is a threshold - adjust as needed
+    //     console.log(lastFloorHeight)
+    //     Renderer.getRenderer().camera.position[1] = lastFloorHeight;
+    //     velocity = 0; 
+    //     console.warn("False positive detected - corrected camera position."); // Optional warning
+    // }
+} else {
+    velocity = 0;
+    lastBlock = floor.intersectedBlock;
+    lastFloorHeight = floor.intersectedBlock.position[1]+2; // Update last floor height
+}
+    
     // Iterate over each registered mesh and draw instances
     for (const meshName in meshes) {
         const mesh = meshes[meshName];
@@ -1217,7 +1435,7 @@ function render() {
         gl.drawElementsInstanced(gl.TRIANGLES, mesh.indicesLength, gl.UNSIGNED_SHORT, 0, instancePositions.length / 3);
     }
 
-    lastPosition = Renderer.getRenderer().camera.position
+    
     animationFrameId = requestAnimationFrame(render);
 }
 
@@ -1230,4 +1448,5 @@ function render() {
            Output.log("Render started!", "BlockJS Renderer");
        }
    }
+
 
