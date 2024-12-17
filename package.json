@@ -1,0 +1,21 @@
+{
+    "dependencies": {
+        "chalk": "^5.3.0",
+        "glob": "^11.0.0",
+        "jsdom": "^25.0.1",
+        "terser-webpack-plugin": "^5.3.11",
+        "ts-loader": "^9.5.1",
+        "url-loader": "^4.1.1"
+    },
+    "devDependencies": {
+        "typescript": "^5.7.2",
+        "webpack": "^5.97.1",
+        "webpack-cli": "^5.1.4"
+    },
+    "scripts": {
+        "build": "npx tsc && npx webpack"
+    },
+    "bin": {
+        "blockjs-compiler": "./compiler.js"
+    }
+}

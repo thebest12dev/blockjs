@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<!-- BlockJS version 0.0.1-alpha   
+
+A Minecraft clone that can be run in your browser and potentially in your school. This game uses WebGL 2, which is 
+based from OpenGL ES 3.0. It also works offline, so you don't have to worry about internet problems unless you're
+playing multiplayer.
+
+This game is inspired by MineKhan, which you can play at https://willard.fun/minekhan. Note that I made this game from
+scratch, so there's really nothing I took from MineKhan.
+
+I made it so it also supports multiplayer, but to host the server, you might have to do a bit of tinkering with Node.js and
+WebSockets. Fortunately there is already a pre-made server to download in my GitHub repository.
+
+Controls:
+W: Move forward
+A: Move left
+S: Move backward
+D: Move right
+Space: Jump (not implemented)
+Esc: Pause
+
+
+And yes, it's still in development as the game is really buggy and feature-lacking. As more time passes, expect new
+features in the game.
+
+NOTE: Singleplayer is unfortunately unavailable due to well how the game originally works. So I will try to give
+a working singleplayer mode sometime soon.
+-->
+<html lang="en">
+<head>
+    <link rel="icon" href="src/assets/core/textures/favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockJS</title>
+    
+    <style>
+        /* Apply this to the entire document */ * { user-select: none; -webkit-user-select: none; /* Safari */ -moz-user-select: none; /* Firefox */ -ms-user-select: none; /* Internet Explorer/Edge */ }
+        .background-image {
+            background-color: rgba(0,0,0,0.5);
+            background-image: url('src/assets/core/textures/dirt.png');
+            background-size:auto;  /* Cover the entire div */
+
+            background-position: center;  /* Center the image */
+        }
+        
+
+        canvas { display: block; }
+        html, body { margin: auto;  width: 100%;height: 100%; overflow: hidden;}
+        #main, #loadScreen {
+            position: absolute;
+            /* top: 10px; */ /* Adjust as needed */
+            /* left: 10px; */ /* Adjust as needed */
+            z-index: 1; /* Ensure it's above the canvas */
+            color: white; /* Text color */
+            font-size: 24px; /* Text size */
+            font-family: Consolas, monospace; /* Text font */
+            
+        }
+        /* Base styles for the button */
+[_1] {
+    border: 2px solid black;   /* Solid border */
+    border-radius: 0;          /* No rounding for box appearance */
+    padding: 10px 20px;        /* Padding to create box shape */
+    font-family: Consolas, monospace; /* Text font */
+    color: white;              /* Text color */
+    cursor: pointer;           /* Pointer cursor on hover */
+}
+
+/* Hover state for the button */
+[_1]:hover:enabled {
+    border-color: white;
+}
+[_1]:disabled {
+    background-color: rgb(78, 78, 78);
+    cursor: default;
+}
+
+/* Unhover state (default) */
+[_1] {
+    
+    background-color: gray;     /* Base color when not hovered */
+}
+[_2] {
+    display: none !important;
+}
+/* Ensure the default input styles are overridden */
+.input {
+    border: 2px solid #000000; /* Custom border */
+    background-color: #000000a6;
+    outline: none; /* Remove default focus outline */
+    box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+}
+
+.input:focus {
+    border-color: #000000; /* Change border color on focus */
+}
+#hoverElement {
+    width: 300px;
+    left: 50vw;
+    z-index: 999;
+    color:rgb(202, 202, 202);
+    font-size: 12pt;
+    border-width: 2px; /* Sets border width to 2 pixels for all sides */
+    border-style: solid; /* Sets border style */
+    border-color: black; /* Sets border color */
+    position: absolute;
+    top: 10vw;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-width: 2px;
+    outline-width: 10px;
+    height: 110px;
+}
+.progress-container {
+            width: 90vw;
+            margin-top: 10px;
+            left: 50px !important;
+            position: fixed;
+            height: 30px;
+            background-color: #00000000;
+            border: #ffffff solid 1px;
+            padding: 1,1,1,1;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            margin-top: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+            height: 20px;
+            width: 0%;
+            background-color: #ffffff;
+            
+            transition: width 0.75s;
+        }
+    </style>
+</head>
+<body class="background-image">
+    <div id="loadScreen" style="background-color: #000000; width: 100vw;height: 100vh;"_2><span style="left: 45vw;top: 46vh; position: fixed;">Loading...</span>  <div class="progress-container" id="container" style="top: 50vh;">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div></div>
+    <div id="main">
+        
+        <div id="hoverElement" _2>Toggles developer mode. This can be useful in debugging or editing the game as it exposes several tools to be used. Press F9 + H for help about developer mode.</div>
+        <div id="game" _2>
+            <span> v1.0.0</span>
+            <span id="fpsCount"> v1.0.0</span>
+            <div id="chat">
+                <div id="chatHistory" style="    font-size: 12pt;
+                top: 50vh;
+                display: flex;
+                position: relative;
+                height: 42vh;
+                flex-direction: column;
+                justify-content: flex-end;"_2>
+                    
+                </div>
+                <div contenteditable="true" id="chatInput" class="input" style="
+                    font-size: 12pt;
+                    width: 100vw;
+                    top: 96.2vh;
+                    position: absolute;
+                " _2></div>
+            </div>
+            <div style="text-align: center;width: 100vw;height: 56vh;margin-top: 40vh;" id="pauseButtons" _2>
+                <button _1 style="align-self: center;width: 30vw;" id="9a">Back to Game</button><br>
+                <button _1 style="align-self: center;width: 30vw;margin-top: 10px;" id="1v">Exit</button><br>
+                    
+            </div>
+        </div>
+        <div id="optionsScreen" _2 style="width: 100vw;height: 100vh;background-color: rgba(0,0,0,0.5);">
+            <div style="left: 40vw;position: relative; top: 25vh;">
+                <button _1 id="_10" style="width: 20vw;" class="hoverable" hoverdata="Toggles developer mode. This can be useful in debugging or editing the game as it exposes several tools to be used. Press F9 + H for help about developer mode.">Developer Mode: Off</button><br>
+                <button _1 id="_10" style="width: 20vw;margin-top: 10px;" class="hoverable" hoverdata="Whether or not to enable frustrum culling to the rendering pipeline. Note that this may result in significant performance drops.">Enable frustrum culling: On</button><br>
+                <button _1 id="_10" style="width: 20vw;margin-top: 10px;" class="hoverable" hoverdata="Whether or not to enable the built in WebGL face cull setting. Note that this may result in significant performance drops.">Enable face culling: On</button><br>
+                <button _1 id="_10" style="width: 20vw;margin-top: 10px;" class="hoverable" hoverdata="Whether or not to enforce strict WebSocket requirements. Note that toggling this off may result in security vulnerabilities.">Enforce secure WebSocket: Off</button><br>
+                <button class="backToTitleScreen" style="width: 20vw;margin-top: 10px;" _1>Exit</button>  
+                
+            </div>
+           
+        </div>
+        <div id="titleScreen" >
+            <img src="src/assets/core/textures/title_screen.png" height="120" alt="Cavesite logo"style="left: 30vw; position: relative; top: 10vh;">
+            <div style="text-align: center;width: 100vw;height: 56vh;margin-top: 21vh;"  id="buttons1">
+                <button _1 style="align-self: center;width: 30vw;" id="0">Singleplayer</button><br>
+                <button _1 style="align-self: center;width: 30vw;margin-top: 10px;" id="1">Multiplayer</button><br>
+                <button _1="" style="align-self: center; width: 30vw; margin-top: 10px;flex: 1;flex: auto;" id="6" onmousedown="document.getElementById('optionsScreen').removeAttribute('_2');document.getElementById('titleScreen').setAttribute('_2','')">Options</button>
+                
+            </div>
+
+                
+            <div>
+                <span style="font-size: 13pt;
+                position: absolute;
+                bottom: 3vh;" id="_16" _2>BlockJS API patch r1</span>
+                <span style="font-size: 13pt;
+                position: absolute;
+                bottom: 0vw;" id="_161" _2>BlockJS patch r3, 0 mods loaded</span>
+                <span style="font-size: 13pt; position: absolute;" id="_3"></span>
+                
+                
+                
+            </div>
+            
+        </div>
+        <div id="multiplayerScreen" _2 style="width: 100vw;height: 100vh;background-color: rgba(0,0,0,0.5);" >
+            <div style="text-align: center; padding-top: 10px;"><span>Multiplayer</span></div>
+            <div id="multiplayerList" style="display: block;text-align: center;background-color: rgba(0,0,0,0.4);width: 100vw;height: 70vh; position: absolute;  /* Negative half of the element's width */ margin-top: 20px; /* Negative half of the element's height */ display: flex; justify-content: center; align-items: center;"></div>
+            <div style="text-align: center; margin-top: 80vh;">
+                <button _1 style="width: 200px;" id="3">Direct Connection</button>
+                <button _1 style="width: 130px;" id="4">Add Server</button>
+                <button _1 style="width: 100px;" class="backToTitleScreen">Exit</button>
+            </div>
+        </div>
+        <div id="singleplayerScreen" _2 style="width: 100vw;height: 100vh;background-color: rgba(0,0,0,0.5);" >
+            <div style="text-align: center; padding-top: 10px;"><span>Singleplayer</span></div>
+            <div id="worldList" style="display: block;text-align: center;background-color: rgba(0,0,0,0.4);width: 100vw;height: 70vh; position: absolute;  /* Negative half of the element's width */ margin-top: 20px; /* Negative half of the element's height */ display: flex; justify-content: center; align-items: center;"></div>
+            <div style="text-align: center; margin-top: 80vh;">
+                <button _1 style="width: 200px;" id="7" onclick="document.getElementById('createWorldScreen').removeAttribute('_2');document.getElementById('titleScreen').setAttribute('_2','');document.getElementById('singleplayerScreen').setAttribute('_2','')
+                document.getElementById('worldName').innerHTML = 'New World';
+                document.getElementById('worldName').focus() ">Create World</button>
+                <button _1 style="width: 130px;" id="8">Edit World</button>
+                <button _1 style="width: 200px;" id="9">Delete World</button>
+                <button _1 style="width: 200px;" id="10">Recreate World</button>
+                <button _1 style="width: 200px;" id="12">Import World</button>
+                <button _1 style="width: 100px;" class="backToTitleScreen">Exit</button>
+            </div>
+        </div>
+        <div id="createWorldScreen" _2 style="width: 100vw;height: 100vh;background-color: rgba(0,0,0,0.5);" >
+            <div style="text-align: center; padding-top: 10px;"><span>Create World</span></div>
+            <div style="left: 35vw;position: relative; top: 10vh;">
+                <div contenteditable="true"  id="worldName" class="input noEnter" style="
+                font-size: 12pt;
+                width: 30vw;
+                padding: 10px 20px;
+                margin-top: -15px;
+                position: absolute;
+            " ></div><br>
+                <button _1 id="_10"disabled style="width: 30vw;margin-top: 10px;" class="hoverable" hoverdata="The world generator is still currently in development. I'm trying to add more worldgens but it can take a while..." >World generator: Superflat</button><br>
+                <button id="createWorld" style="width: 30vw;margin-top: 10px;" _1  onmousedown="document.getElementById('createWorldScreen').setAttribute('_2','')">Create World</button><br>
+                <button class="backToTitleScreen" style="width: 30vw;margin-top: 10px;" _1  onmousedown="document.getElementById('createWorldScreen').setAttribute('_2','')">Exit</button>  
+                
+            </div>
+        </div>
+        <div id="multiplayerErrorScreen" style="background-color: rgba(0,0,0,0.5); width: 100vw; height: 100vh;" _2>
+            <div style="text-align: center; padding-top: 30vh;" id="buttons1">
+                <span style="font-size: 16pt;">Connection lost</span>
+                <br><br>
+                <p id="connectionLostReason" style="font-size: 15pt;"></p>
+                    <br><br><br>
+                <button class="backToTitleScreen" _1>Back to title screen</button>  
+            </div>
+           
+        </div>
+    </div>
+    <div id="crosshairContainer" style="align-content: center;position: absolute;z-index: 9999;" _2>
+        <div style="height: 25px; width: 2px; background-color: #fff;top: 13px;position: relative;"></div>
+        <div style="height: 2px; width: 25px; background-color: #fff;right: 12px;position: relative;"></div>
+    </div>
+    <canvas id="glCanvas" _2></canvas>
+    
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script> -->
+<!-- <script src="./build/src/gl-matrix.js"></script> -->
+    <!-- <script src="./build/src/gl-matrix-min.js"></script>
+    <script src="./src/jszip.min.js"></script> -->
+    <script type="configuration" id="blockjsConfig">
+        # BlockJS configuration
+        # This will be used to ensure BlockJS functions as expected and for debugging purposes.
+        # It will also be used for external tools to use.
+
+        # SYNTAX
+        # `key=value` is to define an entry, like `name="BlockJS"`.
+
+        # `@define key=value` is to define an entry, with the only exception
+        #  being it also being defined under BlockJS.Configuration.
+        
+        # `@override key=value` is to override an existing entry under BlockJS.Configuration
+        # or an internal variable.
+
+        # Note: For now, only `@` modifiers can be applied once per entry.
+        # So `@define @override key=value` won't work.
+
+        @import from "blockjs"
+
+        BLOCKJS_MODDED=false # Set to true if you're developing a modded version.
+
+        # The name of the game that will be shown across the client
+        @override BLOCKJS_EXTERNAL_NAME=Cavesite
+
+        # The version of the client that will be used across client-compatible servers and debugging.
+        @override BLOCKJS_EXTERNAL_VERSION=patch_3
+
+        # BlockJS specific settings
+        @define GL_CULL_FACE=true
+        @define GL_CULL_FRUSTRUM=true
+        @define BLOCKJS_DEVELOPER_MODE=true
+        
+        @reference function 
+    </script>
+    <!-- <script src="build/src/init.js"></script>
+    <script src="build/src/game.js" type="module"></script>
+  
+    <script src="build/src/world-loader.js"></script>
+    <script src="build/src/block.js"></script> 
+    <script src="build/src/main.js" type="module"></script>  -->
+    <script src="src/lib/gl-matrix-min.js"></script>
+    <script src="src/lib/jszip.min.js"></script>
+    <script src="/dist/bundle.js"></script>
+
+
+  
+
+
+</body>
+</html>
