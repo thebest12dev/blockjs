@@ -772,7 +772,7 @@ function cullObjects(objects: any,planes:any) {
         for (let j = 0; j < objects.length; j++) {
             const block = objects[j];
             
-            if (!isAABBInsideFrustum(block.getAABB(), planes) && !(Math.round(Renderer.getRenderer().camera.position[0]) == block.position[0])&& !(Math.round(Renderer.getRenderer().camera.position[2]) == block.position[2])) {
+            if (!isAABBInsideFrustum(block.getAABB(), planes) && !(Math.round(Renderer.getRenderer().camera.position[0]) == block.position[0])&& !(Math.round(Renderer.getRenderer().camera.position[2]) == block.position[2]) &&   (calculateDistanceSquared(Renderer.getRenderer().camera.position[0],Renderer.getRenderer().camera.position[1],Renderer.getRenderer().camera.position[2],block.position[0],block.position[1],block.position[2]) > 128)) {
                 
                 continue;
             }
@@ -851,25 +851,60 @@ function updateCamera(self: Renderer) {
  
     if (!paused) {
      
-        if (keys['w']) {
-         let floor = raycast(
-             vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1], Renderer.getRenderer().camera.position[2]),
-             vec3.fromValues(0,0,-1),
-             2
-         );
-         if (!floor.intersectedBlock) {
-               // Calculate the forward direction with y fixed to 0
-            let forward = vec3.clone(self.camera.front);
-            forward[1] = 0; // Zero out the y component
-            vec3.normalize(forward, forward); // Normalize to maintain unit direction
+    //     if (keys['w']) {
+    //      let front = raycast(
+    //          vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+    //          vec3.fromValues(0,0,-1),
+    //          0.9
+    //      );
+         
+    //     let left = raycast(
+    //         vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+    //         vec3.fromValues(-1,0,0),
+    //         0.9
+    //     );
+    //     let right = raycast(
+    //        vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+    //        vec3.fromValues(1,0,0),
+    //        0.9
+    //    );
+    //      if (!front.intersectedBlock && !left.intersectedBlock  && !right.intersectedBlock) {
+    //            // Calculate the forward direction with y fixed to 0
+    //         let forward = vec3.clone(self.camera.front);
+    //         forward[1] = 0; // Zero out the y component
+    //         vec3.normalize(forward, forward); // Normalize to maintain unit direction
         
-            // Move the Renderer.getRenderer().camera position forward along the x and z axes
-            vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, cameraSpeed);
-         }
+    //         // Move the Renderer.getRenderer().camera position forward along the x and z axes
+    //         vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, cameraSpeed);
+    //      }
           
+    //     }
+    if (keys['w']) {
+        const camera = Renderer.getRenderer().camera;
+        const position = vec3.fromValues(camera.position[0], camera.position[1] - 1, camera.position[2]);
+    
+        // Calculate the forward direction based on camera's rotation
+      
+    
+        let frontRaycast = raycast(position, vec3.fromValues(camera.front[0],0,camera.front[2]), 0.8);
+    
+    
+        if (!frontRaycast.intersectedBlock) {
+            // Movement logic (same as before)
+            let moveForward = vec3.clone(self.camera.front);
+            moveForward[1] = 0;
+            vec3.normalize(moveForward, moveForward);
+            vec3.scaleAndAdd(self.camera.position, self.camera.position, moveForward, cameraSpeed);
         }
-        
+    }
         if (keys['s']) {
+            let back = raycast(
+                vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+                vec3.fromValues(Renderer.getRenderer().camera.front[0],0.5,Renderer.getRenderer().camera.front[2]),
+                0.8
+            );
+           
+            if (!back.intersectedBlock) {
             // Calculate the forward direction with y fixed to 0
             let forward = vec3.clone(self.camera.front);
             forward[1] = 0; // Zero out the y component
@@ -877,18 +912,63 @@ function updateCamera(self: Renderer) {
         
             // Move the Renderer.getRenderer().camera position forward along the x and z axes
             vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, -cameraSpeed);
+            }
         }
         if (keys['a']) {
+            let floor = raycast(
+                vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+                vec3.fromValues(0,0,-1),
+                0.5
+            );
+            let floor2 = raycast(
+               vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+               vec3.fromValues(-1,0,0),
+               0.5
+           );
+           let floor3 = raycast(
+               vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+               vec3.fromValues(0,0,1),
+               0.5
+           );
+           let floor4 = raycast(
+              vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+              vec3.fromValues(1,0,0),
+              0.5
+          );
+            if (!floor.intersectedBlock && !floor2.intersectedBlock && !floor3.intersectedBlock && !floor4.intersectedBlock) {
             const right = vec3.create();
             vec3.cross(right,self.camera.front, self.camera.up);
             vec3.normalize(right, right);
             vec3.scaleAndAdd(self.camera.position, self.camera.position, right, -cameraSpeed);
+            }
         }
         if (keys['d']) {
+            let floor = raycast(
+                vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+                vec3.fromValues(0,0,-1),
+                0.5
+            );
+            let floor2 = raycast(
+               vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+               vec3.fromValues(-1,0,0),
+               0.5
+           );
+           let floor3 = raycast(
+               vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+               vec3.fromValues(0,0,1),
+               0.5
+           );
+           let floor4 = raycast(
+              vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
+              vec3.fromValues(1,0,0),
+              0.5
+          );
+            if (!floor.intersectedBlock && !floor2.intersectedBlock && !floor3.intersectedBlock && !floor4.intersectedBlock) {
             const right = vec3.create();
             vec3.cross(right, self.camera.front, self.camera.up);
             vec3.normalize(right, right);
             vec3.scaleAndAdd(self.camera.position, self.camera.position, right, cameraSpeed);
+            }
         }
         if (keys['Shift']) {
          self.camera.position[1] -= cameraSpeed
