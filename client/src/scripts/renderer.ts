@@ -215,7 +215,7 @@ var gl = canvas.getContext('webgl2',{ depth:true }) as any
     // AABB calculation for Block class
     
 
-            Output.log("Initializing WebGL renderer...", "BlockJS Renderer");
+            Output.log("Initializing WebGL renderer...", "Renderer");
             
             
            
@@ -1525,7 +1525,7 @@ if (floor.intersectedBlock == null) {
            
            
            if (!animationFrameId) { animationFrameId = requestAnimationFrame(render) };
-           Output.log("Render started!", "BlockJS Renderer");
+           Output.log("Render started!", "Renderer");
        }
    }
 

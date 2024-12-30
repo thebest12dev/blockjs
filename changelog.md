@@ -1,7 +1,10 @@
 # BlockJS Changelog
-## 0.3.0 alpha (u4)
+## 0.4.0-alpha (u6)
+## 0.3.1-alpha (u5)
+- Added gravity
+- Added rudimentary collision
 - Added updates (for compiled clients)
-- Refined singleplayer
+## 0.3.0 alpha (u4)
 - Improved rendering pipeline (cause it sucks!)
 ## 0.2.0-alpha (u3)
 - Added singleplayer support

@@ -1,10 +1,10 @@
 /// <reference path="renderer.ts" />
 import { Block } from "./block";
-import { Connection, IntegratedServer } from "./networking";
+import { Connection, getRunningIntegratedServer, IntegratedServer } from "./networking";
 import { Output } from "./logger";
 
 import { Renderer } from "./renderer";
-import { World as World_} from "./world";
+import { World, World as World_} from "./world";
 import { ModLoader } from "./mods";
 import { BlockJSText, Button, Constants } from "./ui";
 
@@ -303,5 +303,40 @@ namespace BlockJS {
         Core.setExternalGameName(name)
     }
 }
+let importMap: any = {
+    "core": {
+        "renderer": Renderer,
+        "functions": {exportObject},
+        "networking": {IntegratedServer, Connection},
+        "output": Output,
+        "modloader": ModLoader,
+        "constants": Constants,
+        "world": World,
+        "main":  {getExternalGameName: Core.getExternalGameName, setExternalGameName: Core.setExternalGameName, getVersion: Core.getVersion},
+        "ui": {Button},
+    }
+}
+function exportObject(object: object, name: string, namespace = "default") {
+    if (!importMap[namespace]) {
+        importMap[namespace] = {}
+    }
+    importMap[namespace][name] = object
+    
+}
+function require(id:string): object {
+    for (const key in importMap) {
+            if (id.startsWith(key+":")) {
+                return importMap[id.split(":")[0]][id.split(":")[1]]
+            } else if (id === key) {
+                console.warn("Error: "+key+" is a namespace"); 
+                return undefined
+            } else {
+                console.warn("Object not found: "+id);
+                return undefined 
+            }
+        
+    }
+}
+(window as any).require = require;
 (window as any).BlockJS = BlockJS
 Core.__internal.internalCall()
