@@ -142,7 +142,7 @@ a working singleplayer mode sometime soon.
     <div id="main">
         
         <div id="hoverElement" _2>Toggles developer mode. This can be useful in debugging or editing the game as it exposes several tools to be used. Press F9 + H for help about developer mode.</div>
-        <div id="game" _2>
+        <div id="game" style="position: relative; z-index: 999;" _2>
             <span> v1.0.0</span>
             <span id="fpsCount"> v1.0.0</span>
             <div id="chat">
@@ -179,7 +179,7 @@ a working singleplayer mode sometime soon.
             </div>
            
         </div>
-        <div id="titleScreen" _2>
+        <div id="titleScreen">
             <img src="src/assets/core/textures/title_screen.png" height="120" alt="Cavesite logo"style="left: 30vw; position: relative; top: 10vh;">
             <div style="text-align: center;width: 100vw;height: 56vh;margin-top: 21vh;"  id="buttons1">
                 <button _1 style="align-self: center;width: 30vw;" id="0">Singleplayer</button><br>
@@ -252,7 +252,7 @@ a working singleplayer mode sometime soon.
             </div>
            
         </div>
-        <div id="updateScreen" style="background-color: rgba(0,0,0,0.5); width: 100vw; height: 100vh;">
+        <!-- <div id="updateScreen" style="background-color: rgba(0,0,0,0.5); width: 100vw; height: 100vh;">
             <div style="text-align: center; padding-top: 2vh;" id="buttons1">
                 <span style="font-size: 16pt;">An update is available!</span>
                 <br><br>
@@ -279,12 +279,12 @@ a working singleplayer mode sometime soon.
             </div>
            
         </div>
-    </div>
+    </div> -->
     <div id="crosshairContainer" style="align-content: center;position: absolute;z-index: 9999;" _2>
         <div style="height: 25px; width: 2px; background-color: #fff;top: 13px;position: relative;"></div>
         <div style="height: 2px; width: 25px; background-color: #fff;right: 12px;position: relative;"></div>
     </div>
-    <canvas id="glCanvas" _2></canvas>
+    <canvas id="glCanvas" style="left: 0px; top: 0px; position: absolute;" _2></canvas>
     
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script> -->
 <!-- <script src="./build/src/gl-matrix.js"></script> -->
@@ -332,8 +332,14 @@ a working singleplayer mode sometime soon.
     <script src="build/src/main.js" type="module"></script>  -->
     <script src="src/lib/gl-matrix-min.js"></script>
     <script src="src/lib/jszip.min.js"></script>
-    <script src="/dist/bundle.js"></script>
-
+    <script src="/dist/main.bundle.js"></script>
+    <script>
+        window.onload = (() => {
+            document.body.appendChild(Object.assign(document.createElement('script'), { src: '/dist/cavesiter.bundle.js' }));
+            console.log("Loaded Cavesiter patch u1")
+        });
+       
+    </script>
 
   
 

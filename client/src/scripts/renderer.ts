@@ -12,8 +12,27 @@ declare const vec3: any;
 declare const mat4: any;
 var canvas = document.getElementById('glCanvas') as HTMLCanvasElement;
 var gl = canvas.getContext('webgl2',{ depth:true }) as any
+export class RenderingAPIContext {
+    public static getWebGL2RenderingContext() {
+        return gl
+    }
+    public static setValue(key: string, value: any) {
+        if (key == "gravity") {
+            Renderer.getRenderer().gravity = value;
+        } else if (key == "accelerationLevel") {
+            Renderer.getRenderer().velocity = value;
+        } else if (key.startsWith("textures.")) {
+            Renderer.getRenderer().loadTexture(value)
+        }
+    }
+    public static getRenderer() {
+        return Renderer.getRenderer()
+    }
+}
     export class Renderer{
         private static renderer: Renderer = undefined;
+        public gravity = 9.81;
+        public velocity = 0
         public static getRenderer() {
             if (this.renderer == undefined) {
                 this.renderer = new Renderer()
@@ -33,50 +52,51 @@ var gl = canvas.getContext('webgl2',{ depth:true }) as any
     collisionThreshold = 2.0; // Distance at which collision will be detected
    
    
-   loadTexture(url: string) {
-    function isPowerOf2(value: number) {
-        return (value & (value - 1)) === 0;
-    }
-
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
-    // Placeholder pixel for the texture
-    const level = 0;
-    const internalFormat = gl.RGBA;
-    const width = 1;
-    const height = 1;
-    const border = 0;
-    const srcFormat = gl.RGBA;
-    const srcType = gl.UNSIGNED_BYTE;
-    const pixel = new Uint8Array([255, 0, 0, 255]);  // Red color
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel);
-
-    // Load the actual texture image
-    const image = new Image();
-    image.onload = function() {
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, srcFormat, srcType, image);
-        
-        if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
-            gl.generateMipmap(gl.TEXTURE_2D);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        } else {
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    loadTexture(url: string) {
+        function isPowerOf2(value: number) {
+            return (value & (value - 1)) === 0;
         }
-    };
     
-    image.onerror = function() {
-        console.error(`Failed to load texture: ${url}`);
-    };
+        const texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
     
-    image.src = url;
-    return texture;
-}
+        // Placeholder pixel for the texture
+        const level = 0;
+        const internalFormat = gl.RGBA8;
+        const width = 1;
+        const height = 1;
+        const depth = 1;
+        const border = 0;
+        const srcFormat = gl.RGBA;
+        const srcType = gl.UNSIGNED_BYTE;
+        const pixel = new Uint8Array([255, 0, 0, 255]);  // Red color
+        gl.texImage3D(gl.TEXTURE_2D_ARRAY, level, internalFormat, width, height, depth, border, srcFormat, srcType, pixel);
+    
+        // Load the actual texture image
+        const image = new Image();
+        image.onload = function() {
+            gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
+            gl.texImage3D(gl.TEXTURE_2D_ARRAY, level, internalFormat, image.width, image.height, depth, border, srcFormat, srcType, image);
+    
+            if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+                gl.generateMipmap(gl.TEXTURE_2D_ARRAY);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            } else {
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            }
+        };
+    
+        image.onerror = function() {
+            console.error(`Failed to load texture: ${url}`);
+        };
+    
+        image.src = url;
+        return texture;
+    }
 
    // Function for occlusion culling
     isOccluded(block: { position: number[]; size: number[]; modelMatrix: any; }, viewProjectionMatrix: any,t: WebGLUniformLocation) {
@@ -362,9 +382,8 @@ precision mediump float;
 
 in highp vec2 vTextureCoord;
 in float fShowBorder;
-flat in int vTextureIndex; // Assuming this is an integer
-const int MAX_TEXTURES = 2;
-uniform sampler2D uSamplers[MAX_TEXTURES];
+flat in int vTextureIndex;
+uniform mediump sampler2DArray uSamplers;
 uniform vec3 uFogColor;
 uniform float uFogStart;
 uniform float uFogEnd;
@@ -377,21 +396,14 @@ vec4 applyFog(vec4 color, float depth) {
 }
 
 void main() {
-    // for now
-    vec4 texColor = texture(uSamplers[0], vTextureCoord); // Cast textureIndex to float
-    if (vTextureIndex == 1) {
-        texColor = texture(uSamplers[1], vTextureCoord);
-    }
-    
+    // Use texture array and index directly
+    vec4 texColor = texture(uSamplers, vec3(vTextureCoord, vTextureIndex));
 
     float depth = gl_FragCoord.z / gl_FragCoord.w;
     vec4 finalColor = applyFog(texColor, depth);
 
-    if (fShowBorder == 1.0f) {
-        ivec2 texSize = textureSize(uSamplers[0],0); // Use uSamplerArray here as well
-        if (vTextureIndex == 1) {
-             texSize = textureSize(uSamplers[1],0); // Use uSamplerArray here as well
-        }
+    if (fShowBorder == 1.0) {
+        ivec2 texSize = textureSize(uSamplers, 0).xy;
         vec2 distToEdge = min(vTextureCoord, 1.0 - vTextureCoord) * vec2(texSize);
         if (any(lessThan(distToEdge, vec2(0.25)))) {
             finalColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -432,7 +444,7 @@ void main() {
                ;
            }
            gl.useProgram(shaderProgram);
-           let velocity = 0
+           
         //    const vertexShaderS = gl.createShader(gl.VERTEX_SHADER);
         //    gl.shaderSource(vertexShaderS, skyboxVsource);
         //    gl.compileShader(vertexShaderS);
@@ -708,14 +720,69 @@ gl.vertexAttribPointer(
 );
 gl.enableVertexAttribArray(textureCoordAttribLocation);
 
-let dirtTexture = this.loadTexture("src/assets/core/textures/dirt.png")
-let testTexture = this.loadTexture("src/assets/core/textures/snow_or_grass.png")
+function loadTexturesIntoArray(urls: string[]) {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
+
+    const level = 0;
+    const internalFormat = gl.RGBA8;
+    const width = 16; // Assuming all textures have the same width
+    const height = 16; // Assuming all textures have the same height
+    const depth = urls.length;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+
+    // Allocate storage for the texture array
+    gl.texImage3D(gl.TEXTURE_2D_ARRAY, level, internalFormat, width, height, depth, border, srcFormat, srcType, null);
+
+    urls.forEach((url, index) => {
+        const image = new Image();
+        image.onload = function() {
+            console.log(image.width, image.height);
+            gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
+            gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, level, 0, 0, index, width, height, 1, srcFormat, srcType, image);
+
+            if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+                gl.generateMipmap(gl.TEXTURE_2D_ARRAY);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            } else {
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            }
+        };
+        image.src = url;
+    });
+
+    return texture;
+}
+
+function isPowerOf2(value: number) {
+    return (value & (value - 1)) === 0;
+}
+
+const textureUrls = [
+    "src/assets/core/textures/dirt.png",
+    "src/assets/core/textures/snow_or_grass.png"
+];
+
+const textureArray = loadTexturesIntoArray(textureUrls);
+
 // Bind texture once
-gl.activeTexture(gl.TEXTURE0+1);
-gl.bindTexture(gl.TEXTURE_2D, dirtTexture);
-gl.activeTexture(gl.TEXTURE0+0);
-gl.bindTexture(gl.TEXTURE_2D, testTexture);
-gl.uniform1iv(uSamplersLocation, [0, 1])
+gl.activeTexture(gl.TEXTURE0);
+gl.bindTexture(gl.TEXTURE_2D_ARRAY, textureArray);
+gl.uniform1i(uSamplersLocation, 0); // Bind the sampler to texture unit 0
+// let dirtTexture = this.loadTexture("src/assets/core/textures/dirt.png");
+// let testTexture = this.loadTexture("src/assets/core/textures/snow_or_grass.png");
+
+// // Bind texture once
+// gl.activeTexture(gl.TEXTURE0);
+// gl.bindTexture(gl.TEXTURE_2D_ARRAY, [dirtTexture, testTexture]);
+// gl.uniform1i(uSamplersLocation, 1);
+// gl.uniform1iv(uSamplersLocation, [0,1]);
 // gl.activeTexture(gl.TEXTURE0);
 // gl.bindTexture(gl.TEXTURE_2D, testTexture);
 
@@ -975,7 +1042,7 @@ function updateCamera(self: Renderer) {
      }
      if (keys[' ']) {
          self.camera.position[1] += 1
-         velocity = 0
+         Renderer.getRenderer().velocity = 0
      }
     }
  
@@ -1400,9 +1467,9 @@ let floor = raycast(
 
 if (floor.intersectedBlock == null) {
     // Apply gravity
-    Renderer.getRenderer().camera.position[1] -= ((9.81 + velocity) / 60) ;
-    if (velocity < 9.81 * 4) {
-        velocity += 1;
+    Renderer.getRenderer().camera.position[1] -= ((Renderer.getRenderer().gravity + Renderer.getRenderer().velocity) / 60) ;
+    if (Renderer.getRenderer().velocity < Renderer.getRenderer().gravity * 4) {
+        Renderer.getRenderer().velocity += 1;
     }
 
     // False positive check: If we've fallen significantly below the last known floor,
@@ -1414,7 +1481,7 @@ if (floor.intersectedBlock == null) {
     //     console.warn("False positive detected - corrected camera position."); // Optional warning
     // }
 } else {
-    velocity = 0;
+    Renderer.getRenderer().velocity = 0;
     lastBlock = floor.intersectedBlock;
     lastFloorHeight = floor.intersectedBlock.position[1]+2; // Update last floor height
 }

@@ -1,6 +1,36 @@
 import { Output } from "./logger"
 import { Block } from "./block"
 import { Renderer } from "./renderer"
+let listeners: ((data: any) => void)[] = []
+let chatListener: ((message: string, player: string) => any) = null
+let ws: WebSocket = null
+export class NetworkingAPIContext {
+    public static getIntegratedServer() {
+        return new IntegratedServer()
+    }
+    public static addOnMessageListener(listener: (data: any) => void, id: string) {
+        listeners.push(listener)
+    }
+    public static removeOnMessageListener(listener: (data: any) => void, id: string) {
+        listeners = listeners.filter((element) => element !== listener)
+    }
+    public static chat(message: string) {
+        ws.send(`{"type":"chatSend", "message": "${message}"}`);
+    }
+    public static closeWebSocket() {
+        ws.close()
+    }
+    setOnChatListener(listener: (message: string, player: string) => any) {
+        setTimeout(() => {
+            chatListener = listener
+        }, 50);
+        
+    }
+    clearOnChatListener() {
+        chatListener = null
+    }
+
+}
     export class Connection {
     #conn: WebSocket | IntegratedServer;
     #onJoinListener = () => {}
@@ -35,11 +65,15 @@ import { Renderer } from "./renderer"
             }, 100);
         };
         const playerBlocks: any = {}
+        ws = this.#conn as WebSocket
         this.#conn.onmessage = (event: { data: string; }) => {
             
-            let data;
+            let data: any;
             try {
                 data = JSON.parse(event.data);
+                listeners.forEach(element => {
+                    element(data);
+                });
             } catch {
                 return
             }
@@ -61,6 +95,7 @@ import { Renderer } from "./renderer"
                     new Block(element[0], element[1],element[2],element[3],element[4],element[5])
                 });
             } else if (data.type === "chatReceive") {
+                chatListener(data.message,data.playerName)
                 this.#onChatHandler(data.playerName,data.message)
             } else if (data.type === "positionGet") {
             

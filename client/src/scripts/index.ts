@@ -166,7 +166,7 @@ export namespace Core {
                         const button = document.getElementById('1');
                         document.getElementById("chatInput").addEventListener("keydown", function(event) {
                         if (event.key.toLowerCase() == "enter") {
-                            paused = false
+                            
                         
                         document.getElementById('chatInput').setAttribute("_2","")
                         
