@@ -239,55 +239,30 @@ export class RenderingAPIContext {
             
             
            
-           function  isInViewport(block: { position: number[]; size: number[]; }, viewProjectionMatrix: any) {
-               // Create the bounding box of the block
-               const min = [
-                   block.position[0] - block.size[0] / 2,
-                   block.position[1] - block.size[1] / 2,
-                   block.position[2] - block.size[2] / 2
-               ];
-               const max = [
-                   block.position[0] + block.size[0] / 2,
-                   block.position[1] + block.size[1] / 2,
-                   block.position[2] + block.size[2] / 2
-               ];
-           
-               // Define the eight corners of the bounding box
-               const corners = [
-                   [min[0], min[1], min[2]],
-                   [max[0], min[1], min[2]],
-                   [min[0], max[1], min[2]],
-                   [max[0], max[1], min[2]],
-                   [min[0], min[1], max[2]],
-                   [max[0], min[1], max[2]],
-                   [min[0], max[1], max[2]],
-                   [max[0], max[1], max[2]]
-               ];
-           
-               // Check if any of the corners are inside the frustum
-               for (const corner of corners) {
-                   const clipSpacePos = vec4.create();
-                   vec4.transformMat4(clipSpacePos, [...corner, 1.0], viewProjectionMatrix);
-                   
-                   // Perform perspective divide
-                   const w = clipSpacePos[3];
-                   if (w !== 0) {
-                       clipSpacePos[0] /= w;
-                       clipSpacePos[1] /= w;
-                       clipSpacePos[2] /= w;
-                   }
-           
-                   // Check if the corner is inside the normalized device coordinates
-                   if (clipSpacePos[0] >= -1 && clipSpacePos[0] <= 1 &&
-                       clipSpacePos[1] >= -1 && clipSpacePos[1] <= 1 &&
-                       clipSpacePos[2] >= -1 && clipSpacePos[2] <= 1) {
-                       return true;
-                   }
-               }
-           
-               // If no corners are inside the frustum, the block is culled
-               return false;
-           }
+            function checkAABBCollision(a: { min: number[], max: number[] }, b: { min: number[], max: number[] }): boolean {
+                return (
+                    a.min[0] <= b.max[0] && a.max[0] >= b.min[0] &&
+                    a.min[1] <= b.max[1] && a.max[1] >= b.min[1] &&
+                    a.min[2] <= b.max[2] && a.max[2] >= b.min[2]
+                );
+            }
+            function checkCollisionWithArray(): object {
+                for (const obj of (window as any).finalObjects) {
+                    if (checkAABBCollision(getAABB([Renderer.getRenderer().camera.position[0],
+                    Renderer.getRenderer().camera.position[1]-(1.5-0.24),
+                    Renderer.getRenderer().camera.position[2]], [0.5,0.5,0.5]), obj.getAABB())) {
+                        return {collided: true, blockPos: obj.position};
+                    }
+                }
+                return {collided: false, blockPos: null};
+            }
+      
+            function getAABB(position: number[], size: number[]): { min: number[], max: number[] } {
+                const halfSize = size.map(s => s / 2);
+                const min = position.map((p, i) => p - halfSize[i]);
+                const max = position.map((p, i) => p + halfSize[i]);
+                return { min, max };
+            }
         //    function checkCollision(camera: { position: number[]; }, element: { position: number[]; size: number[]; }, threshold: number) {
         //        // Calculate the bounding box of the element
         //        const elementMin = [
@@ -1459,19 +1434,14 @@ function render() {
 // direction[1] = -Math.sin(pitch);
 // direction[2] = Math.cos(pitch) * Math.cos(yaw);
 
-let floor = raycast(
-    vec3.fromValues(cameraPos[0], cameraPos[1], cameraPos[2]),
-    vec3.fromValues(0,-1,0),
-    2
-);
-
-if (floor.intersectedBlock == null) {
+let result: any = checkCollisionWithArray()
+if (!result.collided) {
     // Apply gravity
-    Renderer.getRenderer().camera.position[1] -= ((Renderer.getRenderer().gravity + Renderer.getRenderer().velocity) / 60) ;
+    Renderer.getRenderer().camera.position[1] -= (9.81+Renderer.getRenderer().velocity)/60 ;
     if (Renderer.getRenderer().velocity < Renderer.getRenderer().gravity * 4) {
         Renderer.getRenderer().velocity += 1;
     }
-
+    
     // False positive check: If we've fallen significantly below the last known floor,
     // something's wrong.  Reset to the last known floor height.
     // if (cameraPos[1] < lastFloorHeight - 0.5) { // 0.5 is a threshold - adjust as needed
@@ -1482,10 +1452,14 @@ if (floor.intersectedBlock == null) {
     // }
 } else {
     Renderer.getRenderer().velocity = 0;
-    lastBlock = floor.intersectedBlock;
-    lastFloorHeight = floor.intersectedBlock.position[1]+2; // Update last floor height
+    console.log(result.blockPos[1]+2)
+    if (result.blockPos[1]+2 > Renderer.getRenderer().camera.position[1]) {
+        Renderer.getRenderer().camera.position[1] = result.blockPos[1]+2;
+    }
+    // lastBlock = floor.intersectedBlock;
+    // lastFloorHeight = floor.intersectedBlock.position[1]+2; // Update last floor height
 }
-    
+    console.log(Renderer.getRenderer().camera.position)
     // Iterate over each registered mesh and draw instances
     for (const meshName in meshes) {
         const mesh = meshes[meshName];
