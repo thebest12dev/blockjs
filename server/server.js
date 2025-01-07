@@ -10,9 +10,9 @@ const filter = new BadWordsNext({ data: en });
 
 
 
-// const pkg = require('noisejs');
-// const {Noise} = pkg
-// const seedrandom = require('seedrandom');
+const pkg = require('noisejs');
+const {Noise} = pkg
+const seedrandom = require('seedrandom');
 
 module.exports = {
     start: function(port) {
@@ -44,51 +44,12 @@ function findKeyByValue(obj, value) {
 }
 
 
-// function getRandomInt(min, max) {
-//     min = Math.ceil(min);
-//     max = Math.floor(max);
-//     return Math.floor(Math.random() * (max - min + 1)) + min;
-// }
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-// // Simple function to create Perlin noise
-// function generateTerrain(seed, chunkSize = 16, chunksX = 10, chunksY = 10) {
-//     const noise = new Noise();
-//     const rng = seedrandom(seed);
-//     noise.seed(rng());
-
-//     const chunks = [];
-//     for (let chunkX = 0; chunkX < chunksX; chunkX++) {
-//         chunks[chunkX] = [];
-//         for (let chunkY = 0; chunkY < chunksY; chunkY++) {
-//             const chunk = [];
-//             for (let x = 0; x < chunkSize; x++) {
-//                 for (let y = 0; y < chunkSize; y++) {
-//                     const globalX = chunkX * chunkSize + x;
-//                     const globalY = chunkY * chunkSize + y;
-//                     const value = noise.perlin2(globalX / 50, globalY / 50);  // Scale down the coordinates
-
-//                     const heightValue = Math.floor((value + 0.3) * 10);  // Convert to block height
-//                     for (let z = 0; z < heightValue; z++) {
-//                         chunk.push([x, z, y, 1, 1, 1]); // Local coordinates within the chunk
-//                     }
-//                 }
-//             }
-//             chunks[chunkX][chunkY] = chunk;
-//         }
-//     }
-//     return chunks;
-// }
-
-// const seed = getRandomInt(1, 1000);
-// let chunks = generateTerrain(seed);
-
-
-
-// let chunks = generateTerrain();
-
-let chunks = [
-
-]
 function generateChunk(ox,oz = 0) {
     const chunk = []
     for (let i = 0; i < 16; i++) {
@@ -103,17 +64,56 @@ function generateChunk(ox,oz = 0) {
     }
     return chunk
 }
+// Simple function to create Perlin noise
+function generateTerrain(seed, chunkSize = 16, chunksX = 10, chunksY = 10) {
+    const noise = new Noise();
+    const rng = seedrandom(seed);
+    noise.seed(rng());
 
-// Simple chunk generation up to a point.Replace with better alternatives soon.
-for (let i = 0; i < 100; i++) {
-    chunks[i]= []
-    for (let z= 0; z < 100; z++) {
-       
-        chunks[i][z] = generateChunk(16*i,16*z)
+    const chunks = [];
+    for (let chunkX = 0; chunkX < chunksX; chunkX++) {
+        chunks[chunkX] = [];
+        let ox = 16*chunkX
+        for (let chunkY = 0; chunkY < chunksY; chunkY++) {
+            let oz = 16*chunkY
+            const chunk = [];
+            for (let x = 0; x < chunkSize; x++) {
+                for (let y = 0; y < chunkSize; y++) {
+                    
+                    const globalX = chunkX * chunkSize + x;
+                    const globalY = chunkY * chunkSize + y;
+                    const value = noise.perlin2(globalX / 50, globalY / 50);  // Scale down the coordinates
+
+                    const heightValue = Math.floor((value + 0.3) * 10);  // Convert to block height
+                    for (let z = 0; z < heightValue+4; z++) {
+                        chunk.push([x+ox, z, y+oz, 1, 1, 1]); // Local coordinates within the chunk
+                    }
+                }
+            }
+            chunks[chunkX][chunkY] = chunk;
+        }
     }
+    return chunks;
+}
+
+const seed = getRandomInt(1, 1000);
+let chunks = generateTerrain(seed);
+
+
+
+
+
+
+// // Simple chunk generation up to a point.Replace with better alternatives soon.
+// for (let i = 0; i < 100; i++) {
+//     chunks[i]= []
+//     for (let z= 0; z < 100; z++) {
+       
+//         chunks[i][z] = generateChunk(16*i,16*z)
+//     }
 
     
-}
+// }
 
 
 let clientIds = []

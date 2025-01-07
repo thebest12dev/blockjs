@@ -714,7 +714,6 @@ function loadTexturesIntoArray(urls: string[]) {
     urls.forEach((url, index) => {
         const image = new Image();
         image.onload = function() {
-            console.log(image.width, image.height);
             gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture);
             gl.texSubImage3D(gl.TEXTURE_2D_ARRAY, level, 0, 0, index, width, height, 1, srcFormat, srcType, image);
 
@@ -741,7 +740,8 @@ function isPowerOf2(value: number) {
 
 const textureUrls = [
     "src/assets/core/textures/dirt.png",
-    "src/assets/core/textures/snow_or_grass.png"
+    "src/assets/core/textures/snow_or_grass.png",
+    "src/assets/core/textures/planks.png",
 ];
 
 const textureArray = loadTexturesIntoArray(textureUrls);
@@ -875,7 +875,7 @@ let animationFrameId;
 
 // Store mesh data for instanced rendering
 const meshes: any = {};
-
+let currentTexture = 0;
 function updateCamera(self: Renderer) {
             
     const cameraSpeed = 0.25;
@@ -1018,6 +1018,14 @@ function updateCamera(self: Renderer) {
      if (keys[' ']) {
          self.camera.position[1] += 1
          Renderer.getRenderer().velocity = 0
+     }
+     
+     if (keys["1"]) {
+        currentTexture = 1;
+     } else if (keys["2"]) {
+        currentTexture = 0;
+     } else if (keys["3"]) {
+        currentTexture = 2;
      }
     }
  
@@ -1212,9 +1220,16 @@ canvas.addEventListener("mousedown", (e) => {
         const newBlockPos = vec3.create();
         vec3.add(newBlockPos, intersectedBlock.position, placementOffset);
 
-
         let i = new Block(newBlockPos[0], newBlockPos[1], newBlockPos[2], 1, 1, 1);
-        i.texture = "dirt";
+        if (currentTexture === 1) {
+            i.texture = "grass"
+        } else if (currentTexture === 2) {
+             i.texture = "dirt";
+        } else if (currentTexture === 3) {
+            i.texture = "planks"
+        } else {
+            i.texture = "planks";
+        }
     }
 });
 
@@ -1334,7 +1349,7 @@ function getFloorBlock(blocks: Block[], cpos: number[]): Block | null {
                 if (block.position[1] > closestY) {
                     closestY = block.position[0];
                     floorBlock = block;
-                    console.log("why")
+                
                 }
             }
         }
@@ -1452,14 +1467,14 @@ if (!result.collided) {
     // }
 } else {
     Renderer.getRenderer().velocity = 0;
-    console.log(result.blockPos[1]+2)
+   
     if (result.blockPos[1]+2 > Renderer.getRenderer().camera.position[1]) {
         Renderer.getRenderer().camera.position[1] = result.blockPos[1]+2;
     }
     // lastBlock = floor.intersectedBlock;
     // lastFloorHeight = floor.intersectedBlock.position[1]+2; // Update last floor height
 }
-    console.log(Renderer.getRenderer().camera.position)
+    
     // Iterate over each registered mesh and draw instances
     for (const meshName in meshes) {
         const mesh = meshes[meshName];
@@ -1470,11 +1485,23 @@ if (!result.collided) {
         const instancePositions = new Float32Array(culledObjectsForMesh.flatMap((block: { position: any; }) => block.position));
         const instanceScales = new Float32Array(culledObjectsForMesh.flatMap((block: { size: any; }) => block.size));
         for (const block of culledObjectsForMesh) {
+           
+            
             if (block.texture == "dirt") {
                 const index = culledObjectsForMesh.findIndex(obj => {
                     return obj === block; // Assuming intersectedBlock is a direct reference to the object
                 });
                 textureIndexes[index] = 1.0;
+            } else if (block.texture == "grass") {
+                const index = culledObjectsForMesh.findIndex(obj => {
+                    return obj === block; // Assuming intersectedBlock is a direct reference to the object
+                });
+                textureIndexes[index] = 0.0;
+            } else if (block.texture == "planks") {
+                const index = culledObjectsForMesh.findIndex(obj => {
+                    return obj === block; // Assuming intersectedBlock is a direct reference to the object
+                });
+                textureIndexes[index] = 2.0
             }
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);

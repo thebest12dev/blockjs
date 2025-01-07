@@ -37,7 +37,7 @@ module.exports = {
         ],
     },
     optimization: {
-        minimize: false, // Disable minimization
+        minimize: true, // Disable minimization
         usedExports: false, // Disable tree shaking
         minimizer: [new TerserPlugin({
             terserOptions: {
