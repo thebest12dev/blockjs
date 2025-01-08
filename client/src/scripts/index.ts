@@ -101,7 +101,7 @@ export namespace Core {
                         {
                             
                             let socket: Connection;
-                        document.getElementById("_3").innerHTML = "Codename "+getExternalGameName()+" upd-1733193941"
+                      //  document.getElementById("_3").innerHTML = "Codename "+getExternalGameName()+" upd-1733193941"
                         
                         const targetNode = document.getElementById('chatHistory');
                         document.getElementById('createWorld').addEventListener('mousedown',(e) => {

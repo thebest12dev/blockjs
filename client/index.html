@@ -57,6 +57,22 @@ a working singleplayer mode sometime soon.
             
         }
         /* Base styles for the button */
+        .inventory {
+            display: flex;
+            flex-wrap: wrap;
+            width: calc(32px*12);
+            top: calc(90vh - 32px);
+            position: absolute;
+        }
+        .slot {
+            width: 32px;
+            height: 32px;
+            border: 3px solid black;
+            margin: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 [_1] {
     border: 2px solid black;   /* Solid border */
     border-radius: 0;          /* No rounding for box appearance */
@@ -64,6 +80,7 @@ a working singleplayer mode sometime soon.
     font-family: Consolas, monospace; /* Text font */
     color: white;              /* Text color */
     cursor: pointer;           /* Pointer cursor on hover */
+  
 }
 
 /* Hover state for the button */
@@ -180,11 +197,11 @@ a working singleplayer mode sometime soon.
            
         </div>
         <div id="titleScreen">
-            <img src="src/assets/core/textures/title_screen.png" height="120" alt="Cavesite logo"style="left: 30vw; position: relative; top: 10vh;"> -->
+            <img src="src/assets/core/textures/title_screen.png" height="120" alt="Cavesite logo" style="left: 30vw;margin-left: 20px;  position: relative; top: 10vh;">
             <div style="text-align: center;width: 100vw;height: 56vh;margin-top: 21vh;"  id="buttons1">
-                <button _1 style="align-self: center;width: 30vw;" id="0">Singleplayer</button><br>
-                <button _1 style="align-self: center;width: 30vw;margin-top: 10px;" id="1">Multiplayer</button><br>
-                <button _1="" style="align-self: center; width: 30vw; margin-top: 10px;flex: 1;flex: auto;" id="6" onmousedown="document.getElementById('optionsScreen').removeAttribute('_2');document.getElementById('titleScreen').setAttribute('_2','')">Options</button>
+                <button _1 style="align-self: center;width: 30vw;  min-width: 400px;" id="0">Singleplayer</button><br>
+                <button _1 style="align-self: center;width: 30vw;margin-top: 10px;  min-width: 400px;" id="1">Multiplayer</button><br>
+                <button _1="" style="align-self: center; width: 30vw; margin-top: 10px;flex: 1;flex: auto;  min-width: 400px;" id="6" onmousedown="document.getElementById('optionsScreen').removeAttribute('_2');document.getElementById('titleScreen').setAttribute('_2','')">Options</button>
                 
             </div>
 
@@ -196,7 +213,7 @@ a working singleplayer mode sometime soon.
                 <span style="font-size: 13pt;
                 position: absolute;
                 bottom: 0vw;" id="_161" _2>BlockJS patch r3, 0 mods loaded</span>
-                <span style="font-size: 13pt; position: absolute;" id="_3"></span>
+                <!-- <span style="font-size: 13pt; position: absolute;" id="_3"></span> -->
                 
                 
                 
@@ -284,12 +301,27 @@ a working singleplayer mode sometime soon.
         <div style="height: 25px; width: 2px; background-color: #fff;top: 13px;position: relative;"></div>
         <div style="height: 2px; width: 25px; background-color: #fff;right: 12px;position: relative;"></div>
     </div>
+    <div id="fragment_cavesiter">
+        <!-- <div class="inventory" id="fragment_inventory">
+            <div class="slot" id="slot1"></div>
+            <div class="slot" id="slot2"></div>
+            <div class="slot" id="slot3"></div>
+            <div class="slot" id="slot4"></div>
+            <div class="slot" id="slot5"></div>
+            <div class="slot" id="slot6"></div>
+            <div class="slot" id="slot7"></div>
+            <div class="slot" id="slot8"></div>
+            <div class="slot" id="slot9"></div>
+            <div class="slot" id="slot10"></div>
+        </div> -->
+    </div>
     <canvas id="glCanvas" style="left: 0px; top: 0px; position: absolute;" _2></canvas>
     
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script> -->
 <!-- <script src="./build/src/gl-matrix.js"></script> -->
     <!-- <script src="./build/src/gl-matrix-min.js"></script>
     <script src="./src/jszip.min.js"></script> -->
+    
     <script type="configuration" id="blockjsConfig">
         # BlockJS configuration
         # This will be used to ensure BlockJS functions as expected and for debugging purposes.
@@ -341,7 +373,6 @@ a working singleplayer mode sometime soon.
         });
        
     </script>
-  
 
 
 </body>
