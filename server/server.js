@@ -104,16 +104,16 @@ let chunks = generateTerrain(seed);
 
 
 
-// // Simple chunk generation up to a point.Replace with better alternatives soon.
-// for (let i = 0; i < 100; i++) {
-//     chunks[i]= []
-//     for (let z= 0; z < 100; z++) {
+// Simple chunk generation up to a point.Replace with better alternatives soon.
+for (let i = 0; i < 100; i++) {
+    chunks[i]= []
+    for (let z= 0; z < 100; z++) {
        
-//         chunks[i][z] = generateChunk(16*i,16*z)
-//     }
+        chunks[i][z] = generateChunk(16*i,16*z)
+    }
 
     
-// }
+}
 
 
 let clientIds = []
@@ -253,7 +253,6 @@ setInterval(() => {
     })
    
 },100)
-console.log('Game WebSocket Server v1.0.0');
 console.log('✅ The server is running on ws://localhost:'+port);
     }
 }

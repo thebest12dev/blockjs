@@ -6,6 +6,7 @@ import { Output } from "./logger";
     
     const assetsDirt = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAIVBMVEW1tbWmpqaIh4h6j1VzhVJubW1ieUFabUFhYWFSXTlSUlICJfMUAAAAkElEQVR42gVAMQrCMBR9ujlaxNkGfyV7LiCUiGtA2qxWWrMqiBntYjs20sSsQu8pMEsbxHWzwjDnd8lbhVeqZaMjoSO7Iy8jpt69u23eYCHS8rfObkh8QtbRABadzo1qoT/SZ/I5IRzqE3sEA6ptHAu/Bw+hOvZpgiC0uJRMoTpzqSgStkQjK52B64r4bWfZH4v7LTO2BwrJAAAAAElFTkSuQmCC"
     declare const glMatrix: any;
+    let values: any = {}
     var paused = false
 declare const vec4: any;
 declare const vec3: any;
@@ -27,6 +28,9 @@ export class RenderingAPIContext {
     }
     public static getRenderer() {
         return Renderer.getRenderer()
+    }
+    public static overrideValue(key:string, value:any) {
+        values[key] = value;
     }
 }
     export class Renderer{
@@ -543,83 +547,7 @@ void main() {
                vec3.normalize(Renderer.getRenderer().camera.front, front); // Correcting the function call
            }
            
-           
-        //    function updateCamera(self: Renderer) {
-            
-        //        const cameraSpeed = 0.25;
-        //        if (keys["t"] || keys["T"]) {
-        //            paused = true
-        //            if (document.getElementById('titleScreen').getAttribute("_2") == "") {
-        //                document.getElementById('chatInput').removeAttribute("_2")
-        //                document.getElementById('chatInput').focus()
-        //            }
-                  
-        //        }
-        //        // if (keys['w']) {
-        //        //     vec3.scaleAndAdd(Renderer.getRenderer().camera.position, Renderer.getRenderer().camera.position, Renderer.getRenderer().camera.front, this.cameraSpeed);
-        //        // }
-            
-        //        if (!paused) {
-                
-        //            if (keys['w']) {
-        //             let floor = raycast(
-        //                 vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1], Renderer.getRenderer().camera.position[2]),
-        //                 vec3.fromValues(0,0,-1),
-        //                 2
-        //             );
-        //             if (!floor.intersectedBlock) {
-        //                   // Calculate the forward direction with y fixed to 0
-        //                let forward = vec3.clone(self.camera.front);
-        //                forward[1] = 0; // Zero out the y component
-        //                vec3.normalize(forward, forward); // Normalize to maintain unit direction
-                   
-        //                // Move the Renderer.getRenderer().camera position forward along the x and z axes
-        //                vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, cameraSpeed);
-        //             }
-                     
-        //            }
-                   
-        //            if (keys['s']) {
-        //                // Calculate the forward direction with y fixed to 0
-        //                let forward = vec3.clone(self.camera.front);
-        //                forward[1] = 0; // Zero out the y component
-        //                vec3.normalize(forward, forward); // Normalize to maintain unit direction
-                   
-        //                // Move the Renderer.getRenderer().camera position forward along the x and z axes
-        //                vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, -cameraSpeed);
-        //            }
-        //            if (keys['a']) {
-        //                const right = vec3.create();
-        //                vec3.cross(right,self.camera.front, self.camera.up);
-        //                vec3.normalize(right, right);
-        //                vec3.scaleAndAdd(self.camera.position, self.camera.position, right, -cameraSpeed);
-        //            }
-        //            if (keys['d']) {
-        //                const right = vec3.create();
-        //                vec3.cross(right, self.camera.front, self.camera.up);
-        //                vec3.normalize(right, right);
-        //                vec3.scaleAndAdd(self.camera.position, self.camera.position, right, cameraSpeed);
-        //            }
-        //            if (keys['Shift']) {
-        //             self.camera.position[1] -= cameraSpeed
-        //         }
-        //         if (keys[' ']) {
-        //             self.camera.position[1] += 1
-        //             velocity = 0
-        //         }
-        //        }
-            
-            
-        //        const viewMatrix = mat4.create();
-        //        mat4.lookAt(viewMatrix, Renderer.getRenderer().camera.position, [
-        //            Renderer.getRenderer().camera.position[0] + Renderer.getRenderer().camera.front[0],
-        //            Renderer.getRenderer().camera.position[1] + Renderer.getRenderer().camera.front[1],
-        //            Renderer.getRenderer().camera.position[2] + Renderer.getRenderer().camera.front[2]
-        //        ], Renderer.getRenderer().camera.up);
-   
-        //        const viewMatrixLocation = gl.getUniformLocation(shaderProgram, 'viewMatrix');
-        //        gl.uniformMatrix4fv(viewMatrixLocation, gl.FALSE, viewMatrix);
-        //    }
+        
    
            let collision = true;
            function getDayNightColor(time: number, dayDuration: number) {
@@ -750,48 +678,7 @@ const textureArray = loadTexturesIntoArray(textureUrls);
 gl.activeTexture(gl.TEXTURE0);
 gl.bindTexture(gl.TEXTURE_2D_ARRAY, textureArray);
 gl.uniform1i(uSamplersLocation, 0); // Bind the sampler to texture unit 0
-// let dirtTexture = this.loadTexture("src/assets/core/textures/dirt.png");
-// let testTexture = this.loadTexture("src/assets/core/textures/snow_or_grass.png");
 
-// // Bind texture once
-// gl.activeTexture(gl.TEXTURE0);
-// gl.bindTexture(gl.TEXTURE_2D_ARRAY, [dirtTexture, testTexture]);
-// gl.uniform1i(uSamplersLocation, 1);
-// gl.uniform1iv(uSamplersLocation, [0,1]);
-// gl.activeTexture(gl.TEXTURE0);
-// gl.bindTexture(gl.TEXTURE_2D, testTexture);
-
-function optimizeCubes(vertices:any, indices:any) {
-    const uniqueVertices = new Map();
-    const optimizedVertices = [];
-    const optimizedIndices = [];
-    let nextIndex = 0;
-
-    function vertexKey(vx: any, vy: any, vz: any, u: any, v: any) {
-        return `${vx},${vy},${vz},${u},${v}`;
-    }
-
-    for (let i = 0; i < vertices.length; i += 5) {
-        const vx = vertices[i];
-        const vy = vertices[i + 1];
-        const vz = vertices[i + 2];
-        const u = vertices[i + 3];
-        const v = vertices[i + 4];
-
-        const key = vertexKey(vx, vy, vz, u, v);
-        if (!uniqueVertices.has(key)) {
-            uniqueVertices.set(key, nextIndex);
-            optimizedVertices.push(vx, vy, vz, u, v);
-            nextIndex++;
-        }
-        optimizedIndices.push(uniqueVertices.get(key));
-    }
-
-    return {
-        vertices: new Float32Array(optimizedVertices),
-        indices: new Uint16Array(optimizedIndices),
-    };
-}
 
 function calculateDistanceSquared(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): number {
     const dx = x2 - x1;
@@ -821,51 +708,10 @@ function cullObjects(objects: any,planes:any) {
             
            
             culled.push(block)
-            // let vertices, indices;
-            // vertices = block.getVertices();
-            // indices = block.getIndices().map((index: number) => index + offset);
-
-            // combinedVertices.push(...vertices);
-            // combinedIndices.push(...indices);
-            // offset += vertices.length / 5; // Update the offset for the next object
-            // triangles += indices.length / 3;
         }
         return culled
 }
 
-
-function mergeBlocks(blocks: Block[]): { vertices: number[]; indices: number[] } {
-    const combinedVertices: number[] = [];
-    const combinedIndices: number[] = [];
-    let offset = 0;
-
-    blocks.forEach((block: Block, blockIndex) => {
-        const vertices = block.getVertices();
-        const indices = block.getIndices();
-        
-        // Ensure the number of elements per vertex is correct
-        const elementsPerVertex = 5; // Assuming each vertex has 6 elements (x, y, z, u, v, w)
-        const vertexCount = vertices.length / elementsPerVertex;
-        // Add vertices to the combined array
-        combinedVertices.push(...vertices);
-
-        // Add indices to the combined array, adjusting for the current offset
-        for (let i = 0; i < indices.length; i++) {
-            combinedIndices.push(indices[i] + offset);
-        }
-
-        // Update the offset by the number of vertices added
-        offset += vertexCount;
-    });
-
-
-    return {
-        vertices: combinedVertices,
-        indices: combinedIndices
-    };
-}
-
-let skyBlock = new Block(0,0,0,100,100,100)
 
 
 const fpsArray: number[] = [];
@@ -893,42 +739,15 @@ function updateCamera(self: Renderer) {
  
     if (!paused) {
      
-    //     if (keys['w']) {
-    //      let front = raycast(
-    //          vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
-    //          vec3.fromValues(0,0,-1),
-    //          0.9
-    //      );
-         
-    //     let left = raycast(
-    //         vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
-    //         vec3.fromValues(-1,0,0),
-    //         0.9
-    //     );
-    //     let right = raycast(
-    //        vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1]-1, Renderer.getRenderer().camera.position[2]),
-    //        vec3.fromValues(1,0,0),
-    //        0.9
-    //    );
-    //      if (!front.intersectedBlock && !left.intersectedBlock  && !right.intersectedBlock) {
-    //            // Calculate the forward direction with y fixed to 0
-    //         let forward = vec3.clone(self.camera.front);
-    //         forward[1] = 0; // Zero out the y component
-    //         vec3.normalize(forward, forward); // Normalize to maintain unit direction
-        
-    //         // Move the Renderer.getRenderer().camera position forward along the x and z axes
-    //         vec3.scaleAndAdd(self.camera.position, self.camera.position, forward, cameraSpeed);
-    //      }
-          
-    //     }
+   
     if (keys['w']) {
         const camera = Renderer.getRenderer().camera;
         const position = vec3.fromValues(camera.position[0], camera.position[1] - 1, camera.position[2]);
     
         // Calculate the forward direction based on camera's rotation
       
-    
-        let frontRaycast = raycast(position, vec3.fromValues(camera.front[0],0,camera.front[2]), 0.8);
+        console.log(camera.front)
+        let frontRaycast = raycast(position, vec3.fromValues(camera.front[0],camera.front[1],camera.front[2]), 0.8);
     
     
         if (!frontRaycast.intersectedBlock) {
@@ -937,7 +756,13 @@ function updateCamera(self: Renderer) {
             moveForward[1] = 0;
             vec3.normalize(moveForward, moveForward);
             vec3.scaleAndAdd(self.camera.position, self.camera.position, moveForward, cameraSpeed);
-        }
+         } 
+         //else {
+            
+        //     if (frontRaycast.intersectedBlock.position[0]+1 > Renderer.getRenderer().camera.position[0]) {
+        //         Renderer.getRenderer().camera.position[0] = frontRaycast.intersectedBlock.position[0]+1;
+        //     }
+        // }
     }
         if (keys['s']) {
             let back = raycast(
@@ -1145,48 +970,6 @@ function intersectRayAABB(origin: any, direction: any, aabb: { min: number[]; ma
 
     return { point: intersectionPoint, normal: normal };
 }
-// function intersectRayAABB(origin: any, direction: any, aabb: { min: number[]; max: number[]; }): { point: any, normal: any } | null {
-//     let tmin = 0.0; // Start at 0 to consider intersection from the start
-//     let tmax = 10; // Maximum distance for intersection
-//     let normal: any = null;
-
-//     for (let i = 0; i < 3; i++) {
-//         if (Math.abs(direction[i]) < 1e-6) {
-//             if (origin[i] < aabb.min[i] || origin[i] > aabb.max[i]) {
-//                 return null; // Ray is parallel to the slab and outside
-//             }
-//         } else {
-//             const invD = 1.0 / direction[i];
-//             let t1 = (aabb.min[i] - origin[i]) * invD;
-//             let t2 = (aabb.max[i] - origin[i]) * invD;
-
-//             if (t1 > t2) [t1, t2] = [t2, t1]; // Swap if necessary
-
-//             if (t1 > tmin) {
-//                 tmin = t1;
-//                 normal = vec3.create();
-//                 normal[i] = direction[i] < 0 ? 1 : -1;
-//             }
-//             tmax = Math.min(tmax, t2);
-//             if (tmin > tmax) {
-//                 return null; // No intersection
-//             }
-//         }
-//     }
-
-//     if (tmax < 0) {
-//         return null; // No intersection, behind the ray
-//     }
-
-//     const intersectionPoint = vec3.create();
-//     vec3.scaleAndAdd(intersectionPoint, origin, direction, tmin);
-
-//     if (normal) {
-//         vec3.normalize(normal, normal);
-//     }
-
-//     return { point: intersectionPoint, normal: normal };
-// }
 
 function processObjects(culledObjects: any[], intersectedBlock: Block) {
     return culledObjects
@@ -1195,7 +978,24 @@ function processObjects(culledObjects: any[], intersectedBlock: Block) {
 
 let intersectedBlock: Block;
 let normal;
+let self: any = {
+    vec3,
+    processObjects,
+    mat4,
+    intersectRayAABB,
+    Renderer,
+    raycast,
+    currentTexture,
+    normal,
+    intersectedBlock,
+    Block,
+}
 canvas.addEventListener("mousedown", (e) => {
+    self.e = e
+    if (values["core.placeBlock"]) {
+        values["core.placeBlock"](self);
+        return
+    }
     const rayOrigin = vec3.fromValues(
         Renderer.getRenderer().camera.position[0],
         Renderer.getRenderer().camera.position[1],
@@ -1233,99 +1033,6 @@ canvas.addEventListener("mousedown", (e) => {
     }
 });
 
-        // function render() {
-        //     gl.useProgram(shaderProgram);
-        //     const currentTime = Date.now();
-        //     const deltaTime = currentTime - lastTime;
-        //     lastTime = currentTime;
-
-        //     const fps = 1000 / deltaTime;
-        //     fpsArray.push(fps);
-        //     if (fpsArray.length > sampleSize) {
-        //         fpsArray.shift();
-        //     }
-        //     const averageFPS = fpsArray.reduce((a, b) => a + b, 0) / fpsArray.length;
-        //     document.getElementById("fpsCount").innerHTML = Math.floor(averageFPS) + "fps";
-
-        //     const color = getDayNightColor(currentTime, dayDuration);
-        //     gl.clearColor(color.r, color.g, color.b, 1);
-        //     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        //     updateCamera(Renderer.getRenderer());
-        //     if (!collision) {
-        //         Renderer.getRenderer().camera.position[1] -= 9.81 / 60;
-        //     }
-
-        //     const rayOrigin = vec3.fromValues(Renderer.getRenderer().camera.position[0], Renderer.getRenderer().camera.position[1], Renderer.getRenderer().camera.position[2]);
-        //     const rayDirection = vec3.fromValues(Renderer.getRenderer().camera.front[0], Renderer.getRenderer().camera.front[1], Renderer.getRenderer().camera.front[2]);
-
-        //     const intersectedBlock = raycast(rayOrigin, rayDirection, 10); // Cast ray up to 10 units
-
-        //     const viewMatrix = mat4.create();
-        //     mat4.lookAt(viewMatrix, Renderer.getRenderer().camera.position, [
-        //         Renderer.getRenderer().camera.position[0] + Renderer.getRenderer().camera.front[0],
-        //         Renderer.getRenderer().camera.position[1] + Renderer.getRenderer().camera.front[1],
-        //         Renderer.getRenderer().camera.position[2] + Renderer.getRenderer().camera.front[2]
-        //     ], Renderer.getRenderer().camera.up);
-
-        //     gl.uniformMatrix4fv(viewMatrixLocation, gl.FALSE, viewMatrix);
-        //     gl.uniformMatrix4fv(projectionMatrixLocation, gl.FALSE, projectionMatrix);
-
-        //     gl.uniform3fv(fogColorLocation, [color.r, color.g, color.b]); // Grey fog
-        //     gl.uniform1f(fogStartLocation, 60);             // Fog starts at 60 units
-        //     gl.uniform1f(fogEndLocation, 90);               // Fog ends at 90 units
-
-        //     const viewProjectionMatrix = mat4.create();
-        //     mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
-        //     const planes = extractFrustumPlanes(viewProjectionMatrix);
-        //     const culledObjects = cullObjects((window as any).objects, planes);
-
-        //     const finalObjects = processObjects(culledObjects, intersectedBlock);
-        //     for (const meshName in meshes) {
-        //         const mesh = meshes[meshName];
-
-        //         // Filter objects based on mesh type
-        //         const culledObjectsForMesh = finalObjects.filter((obj) => obj.meshType === meshName);
-
-        //         const instancePositions = new Float32Array(culledObjectsForMesh.flatMap((block) => block.position));
-        //         const instanceScales = new Float32Array(culledObjectsForMesh.flatMap((block) => block.size));
-        //         const instanceBorders = new Float32Array(culledObjectsForMesh.map((block) => block === intersectedBlock ? 1.0 : 0.0));
-
-        //         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.vertexBuffer);
-        //         gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, mesh.vertexSize * 4, 0);
-        //         gl.enableVertexAttribArray(positionLocation);
-
-        //         if (textureCoordLocation !== -1) {
-        //             gl.vertexAttribPointer(textureCoordLocation, 2, gl.FLOAT, false, mesh.vertexSize * 4, 12);
-        //             gl.enableVertexAttribArray(textureCoordLocation);
-        //         }
-
-        //         // Setup instance buffers
-        //         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.instancePositionBuffer);
-        //         gl.bufferData(gl.ARRAY_BUFFER, instancePositions, gl.DYNAMIC_DRAW);
-        //         gl.vertexAttribPointer(instancePositionLocation, 3, gl.FLOAT, false, 0, 0);
-        //         gl.enableVertexAttribArray(instancePositionLocation);
-        //         gl.vertexAttribDivisor(instancePositionLocation, 1);
-
-        //         gl.bindBuffer(gl.ARRAY_BUFFER, mesh.instanceScaleBuffer);
-        //         gl.bufferData(gl.ARRAY_BUFFER, instanceScales, gl.DYNAMIC_DRAW);
-        //         gl.vertexAttribPointer(instanceScaleLocation, 3, gl.FLOAT, false, 0, 0);
-        //         gl.enableVertexAttribArray(instanceScaleLocation);
-        //         gl.vertexAttribDivisor(instanceScaleLocation, 1);
-
-        //         const instanceBorderBuffer = gl.createBuffer();
-        //         gl.bindBuffer(gl.ARRAY_BUFFER, instanceBorderBuffer);
-        //         gl.bufferData(gl.ARRAY_BUFFER, instanceBorders, gl.DYNAMIC_DRAW);
-        //         gl.vertexAttribPointer(instanceBorderLocation, 1, gl.FLOAT, false, 0, 0);
-        //         gl.enableVertexAttribArray(instanceBorderLocation);
-        //         gl.vertexAttribDivisor(instanceBorderLocation, 1);
-
-        //         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.indexBuffer);
-        //         gl.drawElementsInstanced(gl.TRIANGLES, mesh.indicesLength, gl.UNSIGNED_SHORT, 0, instancePositions.length / 3);
-        //     }
-
-        //     animationFrameId = requestAnimationFrame(render);
-        // }
 const textureBuffer = gl.createBuffer()
 let lastPosition: any = [0,0,0];
 collision = false

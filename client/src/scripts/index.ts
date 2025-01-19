@@ -7,7 +7,6 @@ import { Renderer } from "./renderer";
 import { World, World as World_} from "./world";
 import { ModLoader } from "./mods";
 import { BlockJSText, Button, Constants } from "./ui";
-
 /**
  * The namespace for the `BlockJS` module that is used to make the underlying game work. It contains features such as rendering,
  * multiplayer connections, player handling etc. along comes with an integrated server (for singleplayer). 
